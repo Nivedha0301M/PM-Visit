@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+
+{q:"During his visit to Gujarat on March 31, 2026, Prime Minister Narendra Modi inaugurated the Samrat Samprati Museum at Koba Tirth located in which city?", options:["Vadodara","Ahmedabad","Gandhinagar","Rajkot"], answer:2},
+
+{q:"The Kaynes Semicon Plant inaugurated by PM Narendra Modi at Sanand is situated within which industrial estate?", options:["Dahej Special Economic Zone (SEZ)","Gujarat Industrial Development Corporation (GIDC)","Dholera Special Investment Region (DSIR)","Gujarat International Finance Tec-City (GIFT City)"], answer:1},
+
+{q:"The multiple development projects launched during PM Modi's visit to Vav–Tharad in Banaskantha district of Gujarat were collectively worth more than:", options:["Rs.15,000 crore","Rs.18,500 crore","Rs.20,000 crore","Rs.25,000 crore"], answer:2},
+
+{q:"The Delhi–Dehradun Economic Corridor inaugurated during PM Modi's visit to Uttar Pradesh and Uttarakhand spans approximately:", options:["175 km","198 km","213 km","225 km"], answer:2},
+
+{q:"The six-lane Delhi–Dehradun Economic Corridor project has been developed at a cost of around:", options:["Rs.8,500 crore","Rs.10,500 crore","Rs.12,000 crore","Rs.14,200 crore"], answer:2},
+
+{q:"Which of the following was the primary objective behind the Delhi–Dehradun Economic Corridor inaugurated in April 2026?", options:["Enhancing freight traffic to Nepal","Reducing travel time between Delhi and Dehradun","Connecting Char Dham routes with expressways","Developing dedicated freight corridors"], answer:1},
+
+{q:"During his visit to Karnataka on May 10, 2026, PM Narendra Modi participated in the celebrations marking which anniversary of The Art of Living?", options:["35th Anniversary","40th Anniversary","45th Anniversary","50th Anniversary"], answer:2},
+
+{q:"Which facility was inaugurated by PM Modi at The Art of Living International Centre in Bengaluru?", options:["Yoga Research Centre","Ved Vignan Bhavan","Dhyan Mandir","Meditation Heritage Complex"], answer:2},
+
+{q:"India's first functional Pradhan Mantri Mega Integrated Textile Region and Apparel (PM MITRA) Park was inaugurated in:", options:["Karimnagar, Telangana","Warangal, Telangana","Nalgonda, Telangana","Mahabubnagar, Telangana"], answer:1},
+
+{q:"During his Telangana visit, PM Modi laid the foundation stone for four-laning of National Highway-167 (NH-167) between:", options:["Hyderabad and Jadcherla","Warangal and Karimnagar","Gudebellur and Mahabubnagar","Mahabubnagar and Raichur"], answer:2},
+
+{q:"Projects inaugurated and dedicated by PM Modi during his visit to Hyderabad in May 2026 were worth around:", options:["Rs.7,200 crore","Rs.8,000 crore","Rs.9,400 crore","Rs.11,500 crore"], answer:2},
+
+{q:"The Somnath Amrut Mahotsav celebrated in May 2026 commemorated how many years of Somnath Temple's enduring faith?", options:["500 years","750 years","1,000 years","1,200 years"], answer:2},
+
+{q:"PM Modi released a commemorative coin of which denomination during the Somnath Amrut Mahotsav?", options:["Rs.50","Rs.75","Rs.100","Rs.125"], answer:1},
+
+{q:"The Rs.150-crore Sardardham Hostel inaugurated by PM Modi is located in:", options:["Rajkot","Surat","Ahmedabad","Vadodara"], answer:3},
+
+{q:"PM Narendra Modi's official visit to the United Arab Emirates (UAE) formed part of a multi-nation tour consisting of how many countries?", options:["Four nations","Five nations","Six nations","Seven nations"], answer:1},
+
+{q:"During his UAE visit, PM Modi held bilateral talks with:", options:["Mohammed bin Rashid Al Maktoum","Khaled bin Mohamed bin Zayed Al Nahyan","Sheikh Mohamed bin Zayed Al Nahyan","Hamdan bin Mohammed Al Maktoum"], answer:2},
+
+{q:"The MoU in the energy sector was signed among Indian Strategic Petroleum Reserves Limited (ISPRL), Government of India and:", options:["Emirates National Oil Company (ENOC)","Abu Dhabi National Oil Company (ADNOC)","Saudi Aramco","Mubadala Energy"], answer:1},
+
+{q:"Cochin Shipyard Limited (CSL) signed a Memorandum of Understanding (MoU) with which UAE-based entity?", options:["DP World","Abu Dhabi Ports","Drydocks World (DDW)","Emirates Shipping Line"], answer:2},
+
+{q:"The tripartite agreement in the maritime sector involved CSL, DDW and:", options:["National Maritime Foundation (NMF)","Centre of Excellence in Maritime & Shipbuilding (CEMS)","Shipping Corporation of India (SCI)","Indian Maritime University (IMU)"], answer:1},
+
+{q:"PM Modi's official visit to the Netherlands constituted which leg of his five-nation tour?", options:["First","Second","Third","Fourth"], answer:1},
+
+{q:"PM Narendra Modi held talks with which Prime Minister during his visit to the Netherlands?", options:["Dick Schoof","Mark Rutte","Rob Jetten","Sigrid Kaag"], answer:2},
+
+{q:"The 11th-century Chola Copper Plates returned to India were restituted by:", options:["University of Amsterdam","Rijksmuseum Amsterdam","Leiden University Library","Utrecht University"], answer:2},
+
+{q:"India and the Netherlands adopted a roadmap for their Strategic Partnership covering the period:", options:["2025–2030","2026–2030","2026–2031","2027–2032"], answer:1},
+
+{q:"PM Modi was conferred Sweden's 'Royal Order of Polar Star', which marked his:", options:["29th international honour","30th international honour","31st international honour","32nd international honour"], answer:2},
+
+{q:"Prime Minister Narendra Modi met which Swedish leader during his visit to Sweden?", options:["Magdalena Andersson","Ulf Kristersson","Stefan Löfven","Carl XVI Gustaf"], answer:1},
+
+{q:"The India-Sweden Joint Innovation Partnership 2.0 aims to double bilateral trade and investment over:", options:["Three years","Four years","Five years","Ten years"], answer:2},
+
+{q:"The acronym SITAC, jointly developed under the India-Sweden Joint Innovation Partnership 2.0, is associated with cooperation in:", options:["Technology and innovation","Space exploration","Artificial intelligence regulation","Green shipping corridors"], answer:0},
+
+{q:"PM Narendra Modi's visit to Norway was significant because it represented the first official visit by an Indian Prime Minister in over:", options:["25 years","30 years","35 years","40 years"], answer:3},
+
+{q:"PM Modi received which prestigious Norwegian honour during his Norway visit?", options:["Order of St. Olav","Royal Norwegian Order of Merit Grand Cross","King Harald Medal of Honour","Norwegian Peace Order"], answer:1},
+
+{q:"The honour conferred upon PM Modi by Norway became his:", options:["30th global honour","31st global honour","32nd global honour","33rd global honour"], answer:2},
+
+{q:"India and Norway elevated their bilateral relationship to which level?", options:["Strategic Partnership","Comprehensive Strategic Partnership","Green Strategic Partnership","Digital Strategic Partnership"], answer:2},
+
+{q:"Which initiative did Norway decide to join during PM Modi's visit?", options:["International Solar Alliance (ISA)","Coalition for Disaster Resilient Infrastructure (CDRI)","Indo-Pacific Oceans Initiative (IPOI)","BIMSTEC Coastal Security Forum"], answer:2},
+
+{q:"India agreed to participate in which maritime event scheduled for 2027?", options:["Oslo Maritime Expo 2027","Nor Shipping 2027","Nordic Maritime Summit 2027","Arctic Blue Economy Forum 2027"], answer:1},
+
+{q:"PM Modi's official visit to Italy took place during:", options:["May 15–16, 2026","May 17–18, 2026","May 18–19, 2026","May 19–20, 2026"], answer:3},
+
+{q:"During his Italy visit, PM Modi held talks with Prime Minister Giorgia Meloni and which President?", options:["Sergio Mattarella","Ignazio La Russa","Paolo Gentiloni","Giuseppe Conte"], answer:0},
+
+{q:"India and Italy upgraded their bilateral relationship from a Strategic Partnership to a:", options:["Comprehensive Strategic Partnership","Green Strategic Partnership","Special Strategic Partnership","Global Strategic Partnership"], answer:2},
+
+{q:"The India–Italy Joint Strategic Action Plan reviewed during the visit covers which period?", options:["2024–2028","2025–2029","2026–2030","2027–2031"], answer:1},
+
+{q:"Which among the following was NOT specifically identified as a key area of cooperation between India and Italy?", options:["Defence manufacturing and maritime security","Artificial Intelligence (AI) and space technologies","Education and skilled mobility","Nuclear power generation"], answer:3},
+
+{q:"India and Italy decided to institutionalize which mechanism for enhancing bilateral engagement?", options:["Biennial Defence Dialogue","Annual Leaders' Meetings","Annual G2G Summit with rotating venues","Trilateral Ministerial Forum"], answer:1},
+
+{q:"Which among the following sectors was included in the important agreements and MoUs signed during PM Modi's visit to Italy?", options:["Rare Earth Minerals and Semiconductor Fabrication","Agriculture and Critical Minerals","Civil Nuclear Cooperation and Aviation Safety","Inland Waterways and Digital Payments"], answer:1},
+
+];
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 1800;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
